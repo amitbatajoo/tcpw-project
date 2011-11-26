@@ -22,9 +22,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.Part;
+import java.util.HashMap;
 
 public class MockHttpServletRequest implements HttpServletRequest {
 
+	HashMap<String,String> reqParams = new HashMap<String,String>();
+	
 	@Override
 	public AsyncContext getAsyncContext() {
 		// TODO Auto-generated method stub
@@ -106,7 +109,12 @@ public class MockHttpServletRequest implements HttpServletRequest {
 	@Override
 	public String getParameter(String arg0) {
 		// TODO Auto-generated method stub
-		return null;
+		return reqParams.get(arg0);
+	}
+	
+	public void setParameter(String param, String arg0)
+	{
+		reqParams.put(param, arg0);
 	}
 
 	@Override
@@ -117,7 +125,7 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
 	@Override
 	public Enumeration<String> getParameterNames() {
-		// TODO Auto-generated method stub
+		// TODO Auto-generated method stub 
 		return null;
 	}
 
