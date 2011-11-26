@@ -363,8 +363,8 @@ public class MockHttpServletRequest implements HttpServletRequest {
 
 	@Override
 	public String getRequestedSessionId() {
-		// TODO Auto-generated method stub
-		return null;
+		String reqString = "session ID";
+		return reqString;
 	}
 
 	@Override
