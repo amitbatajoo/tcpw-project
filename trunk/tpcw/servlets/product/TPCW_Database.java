@@ -68,8 +68,8 @@ import java.sql.Timestamp;
 
 public class TPCW_Database {
 
-    static String driverName = "@jdbc.driver@";
-    static String jdbcPath = "@jdbc.path@";
+    static String driverName = "com.mysql.jdbc.Driver";
+    static String jdbcPath = "jdbc:mysql://localhost/tpcw?user=admin&password=admin";
     // Pool of *available* connections.
     static Vector availConn = new Vector(0);
     static int checkedOut = 0;
@@ -79,7 +79,7 @@ public class TPCW_Database {
     
     //    private static final boolean use_connection_pool = false;
     private static final boolean use_connection_pool = true;
-    public static final int maxConn = @jdbc.connPoolMax@;
+    public static final int maxConn = 100;
     
     // Here's what the db line looks like for postgres
     //public static final String url = "jdbc:postgresql://eli.ece.wisc.edu/tpcwb";
@@ -178,7 +178,7 @@ public class TPCW_Database {
 	    //	    out.println("About to preparestatement!");
 	    //            out.flush();
 	    PreparedStatement get_name = con.prepareStatement
-		(@sql.getName@);
+		("SELECT c_fname,c_lname FROM customer WHERE c_id = ?");
 	    
 	    // Set parameter
 	    get_name.setInt(1, c_id);
@@ -207,7 +207,7 @@ public class TPCW_Database {
 	    // Prepare SQL
 	    Connection con = getConnection();
 	    PreparedStatement statement = con.prepareStatement
-		(@sql.getBook@);
+		("SELECT * FROM item,author WHERE item.i_a_id = author.a_id AND i_id = ?");
 	    
 	    // Set parameter
 	    statement.setInt(1, i_id);
@@ -232,7 +232,7 @@ public class TPCW_Database {
 	    // Prepare SQL
 	    Connection con = getConnection();
 	    PreparedStatement statement = con.prepareStatement
-		(@sql.getCustomer@);
+		("SELECT * FROM customer, address, country WHERE customer.c_addr_id = address.addr_id AND address.addr_co_id = country.co_id AND customer.c_uname = ?");
 	    
 	    // Set parameter
 	    statement.setString(1, UNAME);
@@ -264,7 +264,7 @@ public class TPCW_Database {
 	    // Prepare SQL
 	    Connection con = getConnection();
 	    PreparedStatement statement = con.prepareStatement
-		(@sql.doSubjectSearch@);
+		("SELECT * FROM item, author WHERE item.i_a_id = author.a_id AND item.i_subject = ? ORDER BY item.i_title");
 	    
 	    // Set parameter
 	    statement.setString(1, search_key);
@@ -290,7 +290,7 @@ public class TPCW_Database {
 	    // Prepare SQL
 	    Connection con = getConnection();
 	    PreparedStatement statement = con.prepareStatement
-		(@sql.doTitleSearch@);
+		("SELECT * FROM item, author WHERE item.i_a_id = author.a_id AND item.i_title LIKE ? ORDER BY item.i_title");
 	    
 	    // Set parameter
 	    statement.setString(1, search_key+"%");
@@ -316,7 +316,7 @@ public class TPCW_Database {
 	    // Prepare SQL
 	    Connection con = getConnection();
 	    PreparedStatement statement = con.prepareStatement
-		(@sql.doAuthorSearch@);
+		("SELECT * FROM author, item WHERE author.a_lname LIKE ? AND item.i_a_id = author.a_id ORDER BY item.i_title");
 
 	    // Set parameter
 	    statement.setString(1, search_key+"%");
@@ -342,7 +342,7 @@ public class TPCW_Database {
 	    // Prepare SQL
 	    Connection con = getConnection();
 	    PreparedStatement statement = con.prepareStatement
-		(@sql.getNewProducts@);
+		("SELECT i_id, i_title, a_fname, a_lname " +"FROM item, author " +"WHERE item.i_a_id = author.a_id " +"AND item.i_subject = ? " +"ORDER BY item.i_pub_date DESC,item.i_title ");
 
 	    // Set parameter
 	    statement.setString(1, subject);
@@ -369,7 +369,7 @@ public class TPCW_Database {
 	    Connection con = getConnection();
 	    //The following is the original, unoptimized best sellers query.
 	    PreparedStatement statement = con.prepareStatement
-		(@sql.getBestSellers@);
+		("SELECT i_id, i_title, a_fname, a_lname, SUM(ol_qty) AS orderkey " +"FROM item, author, order_line " +"WHERE item.i_id = order_line.ol_i_id " +"AND item.i_a_id = author.a_id " +"AND order_line.ol_o_id > (SELECT MAX(o_id) - 3333 FROM orders)" +"AND item.i_subject = ? " +"GROUP BY i_id, i_title, a_fname, a_lname " +"ORDER BY orderkey DESC ");
 	    //This is Mikko's optimized version, which depends on the fact that
 	    //A table named "bestseller" has been created.
 	    /*PreparedStatement statement = con.prepareStatement
@@ -401,7 +401,7 @@ public class TPCW_Database {
 	    // Prepare SQL
 	    Connection con = getConnection();
 	    PreparedStatement statement = con.prepareStatement
-		(@sql.getRelated@);
+		("SELECT J.i_id,J.i_thumbnail from item I, item J where (I.i_related1 = J.i_id or I.i_related2 = J.i_id or I.i_related3 = J.i_id or I.i_related4 = J.i_id or I.i_related5 = J.i_id) and I.i_id = ?");
 
 	    // Set parameter
 	    statement.setInt(1, i_id);
@@ -425,12 +425,13 @@ public class TPCW_Database {
 	}
     }
 
-    public static void adminUpdate(int i_id, double cost, String image, String thumbnail) {
+    public static synchronized void adminUpdate(int i_id, double cost, String image, String thumbnail) {
 	try {
+
 	    // Prepare SQL
 	    Connection con = getConnection();
 	    PreparedStatement statement = con.prepareStatement
-		(@sql.adminUpdate@);
+		("UPDATE item SET i_cost = ?, i_image = ?, i_thumbnail = ?, i_pub_date = DATEOB() WHERE i_id = ?");
 
 	    // Set parameter
 	    statement.setDouble(1, cost);
@@ -439,19 +440,22 @@ public class TPCW_Database {
 	    statement.setInt(4, i_id);
 	    statement.executeUpdate();
 	    statement.close();
+
 	    PreparedStatement related = con.prepareStatement
-		(@sql.adminUpdate.related@);
+		("SELECT ol_i_id, SUM(ol_qty) AS orderkey " +"FROM orders, order_line " + "WHERE orders.o_id = order_line.ol_o_id " +"AND NOT (order_line.ol_i_id = ?) " +"AND orders.o_c_id IN (SELECT o_c_id " +"                      FROM orders, order_line " +"                      WHERE orders.o_id = order_line.ol_o_id " +"                      AND orders.o_id > (SELECT MAX(o_id) - 10000 FROM orders)" + "                      AND order_line.ol_i_id = ?) " +"GROUP BY ol_i_id " +"ORDER BY orderkey DESC ");
 
 	    // Set parameter
 	    related.setInt(1, i_id);	
 	    related.setInt(2, i_id);
 	    ResultSet rs = related.executeQuery();
 	    
+	    // changed by jk - 04/2003
+
 	    int[] related_items = new int[5];
 	    // Results
 	    int counter = 0;
 	    int last = 0;
-	    while(rs.next()) {
+	    while(rs.next() && counter<5) {
 		last = rs.getInt(1);
 		related_items[counter] = last;
 		counter++;
@@ -468,7 +472,7 @@ public class TPCW_Database {
 	    {
 		// Prepare SQL
 		statement = con.prepareStatement
-		    (@sql.adminUpdate.related1@);
+		    ("UPDATE item SET i_related1 = ?, i_related2 = ?, i_related3 = ?, i_related4 = ?, i_related5 = ? WHERE i_id = ?");
 		
 		// Set parameter
 		statement.setInt(1, related_items[0]);
@@ -480,11 +484,13 @@ public class TPCW_Database {
 		statement.executeUpdate();
 	    }
 	    statement.close();
+
 	    con.commit();
 	    returnConnection(con);
 	} catch (java.lang.Exception ex) {
 	    ex.printStackTrace();
-	}	
+	}
+
     }
 
     public static String GetUserName(int C_ID){
@@ -493,7 +499,7 @@ public class TPCW_Database {
 	    // Prepare SQL
 	    Connection con = getConnection();
 	    PreparedStatement get_user_name = con.prepareStatement
-		(@sql.getUserName@);
+		("SELECT c_uname FROM customer WHERE c_id = ?");
 	    
 	    // Set parameter
 	    get_user_name.setInt(1, C_ID);
@@ -519,7 +525,7 @@ public class TPCW_Database {
 	    // Prepare SQL
 	    Connection con = getConnection();
 	    PreparedStatement get_passwd = con.prepareStatement
-		(@sql.getPassword@);
+		("SELECT c_passwd FROM customer WHERE c_uname = ?");
 	    
 	    // Set parameter
 	    get_passwd.setString(1, C_UNAME);
@@ -545,7 +551,7 @@ public class TPCW_Database {
 	int related1 = -1;
 	try {
 	    PreparedStatement statement = con.prepareStatement
-		(@sql.getRelated1@);
+		("SELECT i_related1 FROM item where i_id = ?");
 	    statement.setInt(1, I_ID);
 	    ResultSet rs = statement.executeQuery();
 	    rs.next();
@@ -573,7 +579,7 @@ public class TPCW_Database {
 	    {
 		// *** Get the o_id of the most recent order for this user
 		PreparedStatement get_most_recent_order_id = con.prepareStatement
-		    (@sql.getMostRecentOrder.id@);
+		    ("SELECT o_id " +"FROM customer, orders " +"WHERE customer.c_id = orders.o_c_id " +"AND c_uname = ? " +"ORDER BY o_date, orders.o_id DESC ");
 		
 		// Set parameter
 		get_most_recent_order_id.setString(1, c_uname);
@@ -596,7 +602,7 @@ public class TPCW_Database {
 	    {
 		// *** Get the order info for this o_id
 		PreparedStatement get_order = con.prepareStatement
-		    (@sql.getMostRecentOrder.order@);
+		    ("SELECT orders.*, customer.*, " +"  cc_xacts.cx_type, " +"  ship.addr_street1 AS ship_addr_street1, " +"  ship.addr_street2 AS ship_addr_street2, " +"  ship.addr_state AS ship_addr_state, " +"  ship.addr_zip AS ship_addr_zip, " +"  ship_co.co_name AS ship_co_name, " +"  bill.addr_street1 AS bill_addr_street1, " +"  bill.addr_street2 AS bill_addr_street2, " +"  bill.addr_state AS bill_addr_state, " +"  bill.addr_zip AS bill_addr_zip, " +"  bill_co.co_name AS bill_co_name " +"FROM customer, orders, cc_xacts," +"  address AS ship, " +"  country AS ship_co, " +"  address AS bill,  " + "  country AS bill_co " +"WHERE orders.o_id = ? " +"  AND cx_o_id = orders.o_id " +"  AND customer.c_id = orders.o_c_id " +"  AND orders.o_bill_addr_id = bill.addr_id " +"  AND bill.addr_co_id = bill_co.co_id " +"  AND orders.o_ship_addr_id = ship.addr_id " +"  AND ship.addr_co_id = ship_co.co_id " +"  AND orders.o_c_id = customer.c_id");
 		
 		// Set parameter
 		get_order.setInt(1, order_id);
@@ -619,7 +625,7 @@ public class TPCW_Database {
 	    {
 		// *** Get the order_lines for this o_id
 		PreparedStatement get_order_lines = con.prepareStatement
-		    (@sql.getMostRecentOrder.lines@);
+		    ("SELECT * " + "FROM order_line, item " + "WHERE ol_o_id = ? " +"AND ol_i_id = i_id");
 		
 		// Set parameter
 		get_order_lines.setInt(1, order_id);
@@ -659,7 +665,7 @@ public class TPCW_Database {
 	//while(success == false) {
 	try {
 	    PreparedStatement get_next_id = con.prepareStatement
-		(@sql.createEmptyCart@);
+		("SELECT COUNT(*) FROM shopping_cart");
 	    synchronized(Cart.class) {
 		ResultSet rs = get_next_id.executeQuery();
 		rs.next();
@@ -667,7 +673,7 @@ public class TPCW_Database {
 		rs.close();
 		
 		PreparedStatement insert_cart = con.prepareStatement
-		    (@sql.createEmptyCart.insert@);
+		    ("INSERT into shopping_cart (sc_id, sc_time) " + "SELECT COUNT(*), DATEOB() FROM shopping_cart");
 		insert_cart.executeUpdate();
 		get_next_id.close();
 		con.commit();
@@ -709,7 +715,7 @@ public class TPCW_Database {
 	try {
 	    // Prepare SQL
 	    PreparedStatement find_entry = con.prepareStatement
-		(@sql.addItem@);
+		("SELECT scl_qty FROM shopping_cart_line WHERE scl_sc_id = ? AND scl_i_id = ?");
 	    
 	    // Set parameter
 	    find_entry.setInt(1, SHOPPING_ID);
@@ -722,7 +728,7 @@ public class TPCW_Database {
 		int currqty = rs.getInt("scl_qty");
 		currqty+=1;
 		PreparedStatement update_qty = con.prepareStatement
-		(@sql.addItem.update@);
+		("UPDATE shopping_cart_line SET scl_qty = ? WHERE scl_sc_id = ? AND scl_i_id = ?");
 		update_qty.setInt(1, currqty);
 		update_qty.setInt(2, SHOPPING_ID);
 		update_qty.setInt(3, I_ID);
@@ -732,7 +738,7 @@ public class TPCW_Database {
 		
 		//Stick the item info in a new shopping_cart_line
 		PreparedStatement put_line = con.prepareStatement
-		    (@sql.addItem.put@);
+		    ("INSERT into shopping_cart_line (scl_sc_id, scl_qty, scl_i_id) VALUES (?,?,?)");
 		put_line.setInt(1, SHOPPING_ID);
 		put_line.setInt(2, 1);
 		put_line.setInt(3, I_ID);
@@ -758,7 +764,7 @@ public class TPCW_Database {
 		
 		if(QTY == 0) { // We need to remove the item from the cart
 		    PreparedStatement statement = con.prepareStatement
-			(@sql.refreshCart.remove@);
+			("DELETE FROM shopping_cart_line WHERE scl_sc_id = ? AND scl_i_id = ?");
 		    statement.setInt(1, SHOPPING_ID);
 		    statement.setInt(2, I_ID);
 		    statement.executeUpdate();
@@ -766,7 +772,7 @@ public class TPCW_Database {
    		} 
 		else { //we update the quantity
 		    PreparedStatement statement = con.prepareStatement
-			(@sql.refreshCart.update@);
+			("UPDATE shopping_cart_line SET scl_qty = ? WHERE scl_sc_id = ? AND scl_i_id = ?");
 		    statement.setInt(1, QTY);
 		    statement.setInt(2, SHOPPING_ID);
 		    statement.setInt(3, I_ID);
@@ -787,7 +793,7 @@ public class TPCW_Database {
 	try {
 	    // Check to see if the cart is empty
 	    PreparedStatement get_cart = con.prepareStatement
-		(@sql.addRandomItemToCartIfNecessary@);
+		("SELECT COUNT(*) from shopping_cart_line where scl_sc_id = ?");
 	    get_cart.setInt(1, SHOPPING_ID);
 	    ResultSet rs = get_cart.executeQuery();
 	    rs.next();
@@ -811,7 +817,7 @@ public class TPCW_Database {
     private static void resetCartTime(Connection con, int SHOPPING_ID){
 	try {
 	    PreparedStatement statement = con.prepareStatement
-		(@sql.resetCartTime@);
+		("UPDATE shopping_cart SET sc_time = DATEOB() WHERE sc_id = ?");
 	
 	    // Set parameter
 	    statement.setInt(1, SHOPPING_ID);
@@ -840,7 +846,7 @@ public class TPCW_Database {
 	Cart mycart = null;
 	try {
 	    PreparedStatement get_cart = con.prepareStatement
-		(@sql.getCart@);
+		("SELECT * " + "FROM shopping_cart_line, item " + "WHERE scl_i_id = item.i_id AND scl_sc_id = ?");
 	    get_cart.setInt(1, SHOPPING_ID);
 	    ResultSet rs = get_cart.executeQuery();
 	    mycart = new Cart(rs, c_discount);
@@ -856,15 +862,24 @@ public class TPCW_Database {
 
     //This should probably return an error code if the customer
     //doesn't exist, but ...
-    public static void refreshSession(int C_ID) {
+    public static synchronized void refreshSession(int C_ID) {
 	try {
 	    // Prepare SQL
 	    Connection con = getConnection();
-	    PreparedStatement updateLogin = con.prepareStatement
-		(@sql.refreshSession@);
+
+	    // changed by jk - 04/2003
+	    // sql.refreshSession="UPDATE customer SET c_login = CURRENT TIMESTAMP, c_expiration = CURRENT TIMESTAMP + 2 HOURS WHERE c_id = ?"
 	    
+	    PreparedStatement updateLogin = con.prepareStatement
+		("UPDATE customer SET c_login = DATEOB(), c_expiration = ? WHERE c_id = ?");
+	    
+	    Calendar cal = Calendar.getInstance();
+	    cal.add(Calendar.HOUR_OF_DAY, 2);
+	    Timestamp currentTime = new Timestamp(cal.getTimeInMillis());
+
 	    // Set parameter
-	    updateLogin.setInt(1, C_ID);
+	    updateLogin.setTimestamp(1, currentTime);
+	    updateLogin.setInt(2, C_ID);
 	    updateLogin.executeUpdate();
 	    
 	    con.commit();
@@ -875,7 +890,7 @@ public class TPCW_Database {
 	}
     }    
 
-    public static Customer createNewCustomer(Customer cust) {
+    public static synchronized Customer createNewCustomer(Customer cust) {
 	try {
 	    // Get largest customer ID already in use.
 	    Connection con = getConnection();
@@ -890,7 +905,7 @@ public class TPCW_Database {
 	    cust.c_expiration = new Date(System.currentTimeMillis() + 
 					 7200000);//milliseconds in 2 hours
 	    PreparedStatement insert_customer_row = con.prepareStatement
-		(@sql.createNewCustomer@);
+		("INSERT into customer (c_id, c_uname, c_passwd, c_fname, c_lname, c_addr_id, c_phone, c_email, c_since, c_last_login, c_login, c_expiration, c_discount, c_balance, c_ytd_pmt, c_birthdate, c_data) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 	    insert_customer_row.setString(4,cust.c_fname);
 	    insert_customer_row.setString(5,cust.c_lname);
 	    insert_customer_row.setString(7,cust.c_phone);
@@ -914,7 +929,7 @@ public class TPCW_Database {
 					cust.addr_zip,
 					cust.co_name);
 	    PreparedStatement get_max_id = con.prepareStatement
-		(@sql.createNewCustomer.maxId@);
+		("SELECT max(c_id) FROM customer");
 	    
 	    synchronized(Customer.class) {
 		// Set parameter
@@ -947,7 +962,7 @@ public class TPCW_Database {
 
     //BUY CONFIRM 
 
-    public static BuyConfirmResult doBuyConfirm(int shopping_id,
+    public static synchronized BuyConfirmResult doBuyConfirm(int shopping_id,
 						int customer_id,
 						String cc_type,
 						long cc_number,
@@ -962,6 +977,7 @@ public class TPCW_Database {
 	    result.cart = getCart(con, shopping_id, c_discount);
 	    int ship_addr_id = getCAddr(con, customer_id);
 	    result.order_id = enterOrder(con, customer_id, result.cart, ship_addr_id, shipping, c_discount);
+
 	    enterCCXact(con, result.order_id, cc_type, cc_number, cc_name, cc_expiry, result.cart.SC_TOTAL, ship_addr_id);
 	    clearCart(con, shopping_id);
 	    con.commit();
@@ -972,7 +988,7 @@ public class TPCW_Database {
 	return result;
     }
     
-    public static BuyConfirmResult doBuyConfirm(int shopping_id,
+    public static synchronized BuyConfirmResult doBuyConfirm(int shopping_id,
 				    int customer_id,
 				    String cc_type,
 				    long cc_number,
@@ -1008,7 +1024,7 @@ public class TPCW_Database {
 	try {
 	    // Prepare SQL
 	    PreparedStatement statement = con.prepareStatement
-		(@sql.getCDiscount@);
+		("SELECT c_discount FROM customer WHERE customer.c_id = ?");
 	    
 	    // Set parameter
 	    statement.setInt(1, c_id);
@@ -1031,7 +1047,7 @@ public class TPCW_Database {
 	try {
 	    // Prepare SQL
 	    PreparedStatement statement = con.prepareStatement
-		(@sql.getCAddrId@);
+		("SELECT c_addr_id FROM customer WHERE customer.c_id = ?");
 	    
 	    // Set parameter
 	    statement.setInt(1, c_id);
@@ -1053,7 +1069,7 @@ public class TPCW_Database {
 	try {
 	    // Prepare SQL
 	    PreparedStatement statement = con.prepareStatement
-		(@sql.getCAddr@);
+		("SELECT c_addr_id FROM customer WHERE customer.c_id = ?");
 	    
 	    // Set parameter
 	    statement.setInt(1, c_id);
@@ -1087,8 +1103,33 @@ public class TPCW_Database {
 	
 	try {
 	    // Prepare SQL
+
+	    // changed by jk - 04/2003
+	    // "INSERT into cc_xacts (cx_o_id, cx_type, cx_num, cx_name, cx_expire, cx_xact_amt, cx_xact_date, cx_co_id) " + \
+	    // "VALUES (?, ?, ?, ?, ?, ?, CURRENT DATE, (SELECT co_id FROM address, country WHERE addr_id = ? AND addr_co_id = co_id))"
+
+	    int tmpint = 0;
+	    PreparedStatement tmp_statement = null;
+	    ResultSet rs = null;
+	    try {
+		tmp_statement = con.prepareStatement
+		    ("SELECT co_id FROM address, country WHERE addr_id = ? AND addr_co_id = co_id");
+		tmp_statement.setInt(1, ship_addr_id);
+		rs = tmp_statement.executeQuery();
+		while(rs.next()) {
+		    tmpint=rs.getInt(1);
+		}
+		//		con.commit();
+	    }
+	    catch(java.lang.Exception ex) {
+		ex.printStackTrace();
+	    } finally {
+		rs.close();
+		tmp_statement.close();		
+	    }
+
 	    PreparedStatement statement = con.prepareStatement
-		(@sql.enterCCXact@);
+		("INSERT into cc_xacts (cx_o_id, cx_type, cx_num, cx_name, cx_expire, cx_xact_amt, cx_xact_date, cx_co_id) " + "VALUES (?, ?, ?, ?, ?, ?, DATEOB(), ?)");
 	    
 	    // Set parameter
 	    statement.setInt(1, o_id);           // cx_o_id
@@ -1097,7 +1138,8 @@ public class TPCW_Database {
 	    statement.setString(4, cc_name);     // cx_name
 	    statement.setDate(5, cc_expiry);     // cx_expiry
 	    statement.setDouble(6, total);       // cx_xact_amount
-	    statement.setInt(7, ship_addr_id);   // ship_addr_id
+	    //	    statement.setInt(7, ship_addr_id);   // ship_addr_id
+	    statement.setInt(7, tmpint);	    
 	    statement.executeUpdate();
 	    statement.close();
 	} catch (java.lang.Exception ex) {
@@ -1111,7 +1153,7 @@ public class TPCW_Database {
 	try {
 	    // Prepare SQL
 	    PreparedStatement statement = con.prepareStatement
-		(@sql.clearCart@);
+		("DELETE FROM shopping_cart_line WHERE scl_sc_id = ?");
 	    
 	    // Set parameter
 	    statement.setInt(1, shopping_id);
@@ -1136,7 +1178,7 @@ public class TPCW_Database {
         // for will be there?
 	try {
 	    PreparedStatement get_co_id = con.prepareStatement
-		(@sql.enterAddress.id@);
+		("SELECT co_id FROM country WHERE co_name = ?");
 	    get_co_id.setString(1, country);
 	    ResultSet rs = get_co_id.executeQuery();
 	    rs.next();
@@ -1147,7 +1189,7 @@ public class TPCW_Database {
 	    //Get address id for this customer, possible insert row in
 	    //address table
 	    PreparedStatement match_address = con.prepareStatement
-		(@sql.enterAddress.match@);
+		("SELECT addr_id FROM address " + "WHERE addr_street1 = ? " +"AND addr_street2 = ? " + "AND addr_city = ? " + "AND addr_state = ? " + "AND addr_zip = ? " + "AND addr_co_id = ?");
 	    match_address.setString(1, street1);
 	    match_address.setString(2, street2);
 	    match_address.setString(3, city);
@@ -1157,7 +1199,7 @@ public class TPCW_Database {
 	    rs = match_address.executeQuery();
 	    if(!rs.next()){//We didn't match an address in the addr table
 		PreparedStatement insert_address_row = con.prepareStatement
-		    (@sql.enterAddress.insert@);
+		    ("INSERT into address (addr_id, addr_street1, addr_street2, addr_city, addr_state, addr_zip, addr_co_id) " + "VALUES (?, ?, ?, ?, ?, ?, ?)");
 		insert_address_row.setString(2, street1);
 		insert_address_row.setString(3, street2);
 		insert_address_row.setString(4, city);
@@ -1166,7 +1208,7 @@ public class TPCW_Database {
 		insert_address_row.setInt(7, addr_co_id);
 
 		PreparedStatement get_max_addr_id = con.prepareStatement
-		    (@sql.enterAddress.maxId@);
+		    ("SELECT max(addr_id) FROM address");
 		synchronized(Address.class) {
 		    ResultSet rs2 = get_max_addr_id.executeQuery();
 		    rs2.next();
@@ -1195,18 +1237,31 @@ public class TPCW_Database {
 	int o_id = 0;
 	// - Creates an entry in the 'orders' table 
 	try {
+
+	    // changed by jk - 04/2003
+	    // "INSERT into orders (o_id, o_c_id, o_date, o_sub_total, " + \
+	    // "o_tax, o_total, o_ship_type, o_ship_date, " + \
+	    // "o_bill_addr_id, o_ship_addr_id, o_status) " + \
+	    // "VALUES (?, ?, CURRENT DATE, ?, 8.25, ?, ?, CURRENT DATE + ? DAYS, ?, ?, 'Pending')"
+
 	    PreparedStatement insert_row = con.prepareStatement
-		(@sql.enterOrder.insert@);
+		("INSERT into orders (o_id, o_c_id, o_date, o_sub_total, " + "o_tax, o_total, o_ship_type, o_ship_date, " + "o_bill_addr_id, o_ship_addr_id, o_status) " + "VALUES (?, ?, DATEOB(), ?, 8.25, ?, ?, ?, ?, ?, 'Pending')");
+	    
+    	    Calendar cal = Calendar.getInstance();
+	    cal.add(Calendar.DATE, TPCW_Util.getRandom(7));
+	    Timestamp currentTime = new Timestamp(cal.getTimeInMillis());
+
 	    insert_row.setInt(2, customer_id);
 	    insert_row.setDouble(3, cart.SC_SUB_TOTAL);
 	    insert_row.setDouble(4, cart.SC_TOTAL);
 	    insert_row.setString(5, shipping);
-	    insert_row.setInt(6, TPCW_Util.getRandom(7));
+	    //	    insert_row.setInt(6, TPCW_Util.getRandom(7));
+	    insert_row.setTimestamp(6, currentTime);
 	    insert_row.setInt(7, getCAddrID(con, customer_id));
 	    insert_row.setInt(8, ship_addr_id);
 
 	    PreparedStatement get_max_id = con.prepareStatement
-		(@sql.enterOrder.maxId@);
+		("SELECT count(o_id) FROM orders");
 	    //selecting from order_line is really slow!
 	    synchronized(Order.class) {
 		ResultSet rs = get_max_id.executeQuery();
@@ -1251,7 +1306,7 @@ public class TPCW_Database {
 	int success = 0;
 	try {
 	    PreparedStatement insert_row = con.prepareStatement
-		(@sql.addOrderLine@);
+		("INSERT into order_line (ol_id, ol_o_id, ol_i_id, ol_qty, ol_discount, ol_comments) " + "VALUES (?, ?, ?, ?, ?, ?)");
 	    
 	    insert_row.setInt(1, ol_id);
 	    insert_row.setInt(2, ol_o_id);
@@ -1270,7 +1325,7 @@ public class TPCW_Database {
 	int stock = 0;
 	try {
 	    PreparedStatement get_stock = con.prepareStatement
-		(@sql.getStock@);
+		("SELECT i_stock FROM item WHERE i_id = ?");
 	    
 	    // Set parameter
 	    get_stock.setInt(1, i_id);
@@ -1290,7 +1345,7 @@ public class TPCW_Database {
     public static void setStock(Connection con, int i_id, int new_stock) {
 	try {
 	    PreparedStatement update_row = con.prepareStatement
-		(@sql.setStock@);
+		("UPDATE item SET i_stock = ? WHERE i_id = ?");
 	    update_row.setInt(1, new_stock);
 	    update_row.setInt(2, i_id);
 	    update_row.executeUpdate();
@@ -1307,7 +1362,7 @@ public class TPCW_Database {
 	    int id_expected = 1;
 	    //First verify customer table
 	    PreparedStatement get_ids = con.prepareStatement
-		(@sql.verifyDBConsistency.custId@);
+		("SELECT c_id FROM customer");
 	    ResultSet rs = get_ids.executeQuery();
 	    while(rs.next()){
 	        this_id = rs.getInt("c_id");
@@ -1321,7 +1376,7 @@ public class TPCW_Database {
 	    id_expected = 1;
 	    //Verify the item table
 	    get_ids = con.prepareStatement
-		(@sql.verifyDBConsistency.itemId@);
+		("SELECT i_id FROM item");
 	    rs = get_ids.executeQuery();
 	    while(rs.next()){
 	        this_id = rs.getInt("i_id");
@@ -1335,7 +1390,7 @@ public class TPCW_Database {
 	    id_expected = 1;
 	    //Verify the address table
 	    get_ids = con.prepareStatement
-		(@sql.verifyDBConsistency.addrId@);
+		("SELECT addr_id FROM address");
 	    rs = get_ids.executeQuery();
 	    while(rs.next()){
 	        this_id = rs.getInt("addr_id");
