@@ -18,10 +18,12 @@ import product.TPCW_product_detail_servlet;
 
 public class TPCW_product_detail_servletTest {
 
-	HttpServletRequest req;
-	HttpServletResponse res;
+	static HttpServletRequest req;
+	static HttpServletResponse res;
+	
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
+		
 	}
 
 	@AfterClass
