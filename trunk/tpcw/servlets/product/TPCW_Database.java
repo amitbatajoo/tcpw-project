@@ -69,7 +69,7 @@ import java.sql.Timestamp;
 public class TPCW_Database {
 
     static String driverName = "com.mysql.jdbc.Driver";
-    static String jdbcPath = "jdbc:mysql://localhost/tpcw?user=admin&password=admin";
+    static String jdbcPath = "jdbc:mysql://localhost/tpcw?user=root&password=password";
     // Pool of *available* connections.
     static Vector availConn = new Vector(0);
     static int checkedOut = 0;
