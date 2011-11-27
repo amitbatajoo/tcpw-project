@@ -25,6 +25,23 @@ public class TPCW_buy_request_servletTest {
 	static MockHttpServletResponse res;
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
+		/*
+		 *  
+		 *  String UNAME = req.getParameter("UNAME");
+	  		String PASSWD = req.getParameter("PASSWD");
+		 *  
+		 *  cust.c_fname = req.getParameter("FNAME");
+	  		cust.c_lname = req.getParameter("LNAME");
+	  		cust.addr_street1 = req.getParameter("STREET1");
+	  		cust.addr_street2 = req.getParameter("STREET2");
+	  		cust.addr_city = req.getParameter("CITY");
+	  		cust.addr_state = req.getParameter("STATE");
+	  		cust.addr_zip = req.getParameter("ZIP");
+	  		cust.co_name = req.getParameter("COUNTRY");
+	  		cust.c_phone = req.getParameter("PHONE");
+	  		cust.c_email = req.getParameter("EMAIL");
+		 */
+		
 		req = new MockHttpServletRequest();
 		res = new MockHttpServletResponse();
 		req.setParameter("C_ID", "2");
