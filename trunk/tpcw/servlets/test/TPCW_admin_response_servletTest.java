@@ -5,8 +5,6 @@ import static org.junit.Assert.*;
 import java.io.IOException;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -15,13 +13,25 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import product.TPCW_admin_response_servlet;
+import test.objects.MockHttpServletRequest;
+import test.objects.MockHttpServletResponse;
 
 public class TPCW_admin_response_servletTest {
 	
-	HttpServletRequest req;
-	HttpServletResponse res;
+	static MockHttpServletRequest req;
+	static MockHttpServletResponse res;
+	
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
+		req = new MockHttpServletRequest();
+		res = new MockHttpServletResponse();
+		
+		req.setParameter("I_ID", "1");
+		req.setParameter("I_NEW_IMAGE", "NewImage");
+		req.setParameter("I_NEW_THUMBNAIL", "NewThumbnail");
+		req.setParameter("I_NEW_COST", "NewCost");
+		req.setParameter("C_ID", "2");
+		req.setParameter("SHOPPING_ID", "1");
 	}
 
 	@AfterClass
@@ -48,7 +58,7 @@ public class TPCW_admin_response_servletTest {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		assertNotNull(res);
+		assertNotNull(res.getContent());
 	}
 
 }
