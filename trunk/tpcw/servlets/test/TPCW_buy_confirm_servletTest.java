@@ -16,13 +16,20 @@ import org.junit.Test;
 
 import product.TPCW_admin_request_servlet;
 import product.TPCW_buy_confirm_servlet;
+import test.objects.MockHttpServletRequest;
+import test.objects.MockHttpServletResponse;
 
 public class TPCW_buy_confirm_servletTest {
 
-	HttpServletRequest req;
-	HttpServletResponse res;
+	static MockHttpServletRequest req;
+	static MockHttpServletResponse res;
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
+		req = new MockHttpServletRequest();
+		res = new MockHttpServletResponse();
+		req.setParameter("I_ID", "1");
+		req.setParameter("C_ID", "2");
+		req.setParameter("SHOPPING_ID", "3");
 	}
 
 	@AfterClass
@@ -49,7 +56,7 @@ public class TPCW_buy_confirm_servletTest {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		assertNotNull(res);
+		assertNotNull(res.getContent());
 	}
 
 }

@@ -15,13 +15,21 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import product.TPCW_execute_search;
+import test.objects.MockHttpServletRequest;
+import test.objects.MockHttpServletResponse;
 
 public class TPCW_execute_searchTest {
 
-	HttpServletRequest req;
-	HttpServletResponse res;
+	static MockHttpServletRequest req;
+	static MockHttpServletResponse res;
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
+		req = new MockHttpServletRequest();
+		res = new MockHttpServletResponse();
+		req.setParameter("C_ID", "2");
+		req.setParameter("SHOPPING_ID", "3");
+		req.setParameter("Author", "I");
+		req.setParameter("search_string", "I");
 	}
 
 	@AfterClass
@@ -48,7 +56,7 @@ public class TPCW_execute_searchTest {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		assertNotNull(res);
+		assertNotNull(res.getContent());
 	}
 
 }
