@@ -63,9 +63,18 @@
     		<mkdir dir="${distDir}" />
 		<mkdir dir="${docDir}"/>
   	</target>
+	
+	<!-- Copy source files and replace tokens according to the filter files -->
+	<target name="tpcwCheckout" depends="prepare" description="Checkout the latest version of the source code from the repository">
+		<exec executable="/usr/local/bin/svn">
+			<arg value="co" />
+			<arg value="https://tcpw-project.googlecode.com/svn/trunk/" />
+			<arg value="/home/nkuadmin/Documents/tpcw-project" />
+		</exec>
+	</target>
 
 	<!-- Copy source files and replace tokens according to the filter files -->
-	<target name="mksrc" depends="prepare" description="Replace tokens in src with values from properties in filter files.">
+	<target name="mksrc" depends="tpcwCheckout" description="Replace tokens in src with values from properties in filter files.">
 		<filter filtersFile="${tpcwFilter}"/>
 		<filter filtersFile="${sqlFilter}"/>
 		<copy todir="${srcServDir}" filtering="on" preservelastmodified="true">
@@ -95,21 +104,21 @@
 
 	<!-- Build the class files for the servlets and the database populate class -->
   	<target name="build" depends="mksrc" description="Build the *.class files from source.">
-    		<javac srcdir="${srcServDir}" destdir="${buildServDir}">
+    		<javac srcdir="${srcServDir}" includeantruntime="false" destdir="${buildServDir}">
     			<classpath>
       				<pathelement path="${classpath}"/>
       				<pathelement path="${srcServDir}"/>
       				<pathelement location="${cpServ}"/>
     			</classpath>
     		</javac>
-    		<javac srcdir="${srcDir}" destdir="${buildRbeDir}" includes="rbe/**">
+    		<!--<javac srcdir="${srcDir}" includeantruntime="false" destdir="${buildRbeDir}" includes="rbe/**">
     			<classpath>
       				<pathelement path="${classpath}"/>
       				<pathelement path="${srcRbeDir}"/>
       				<pathelement location="${cpServ}"/>
     			</classpath>
-    		</javac>
-    		<javac srcdir="${srcDbDir}" destdir="${buildDbDir}">
+    		</javac>-->
+    		<javac srcdir="${srcDbDir}" includeantruntime="false" destdir="${buildDbDir}">
     			<classpath>
       				<pathelement path="${classpath}"/>
       				<pathelement path="${srcDbDir}"/>
