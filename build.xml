@@ -66,7 +66,7 @@
 	
 	<!-- Copy source files and replace tokens according to the filter files -->
 	<target name="tpcwCheckout" depends="prepare" description="Checkout the latest version of the source code from the repository">
-		<exec executable="/usr/local/bin/svn">
+		<exec executable="/usr/bin/svn">
 			<arg value="co" />
 			<arg value="https://tcpw-project.googlecode.com/svn/trunk/" />
 			<arg value="/home/nkuadmin/Documents/tpcw-project" />
