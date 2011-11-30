@@ -1,4 +1,3 @@
-package product;
 /* 
  * TPCW_shopping_cart_interaction.java - Servlet class implements the 
  *                                       shopping cart web interaction.

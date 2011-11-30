@@ -1,4 +1,3 @@
-package product;
 /* 
  * TPCW_Util.java - Some random utility functions needed by the servlets.
  *
@@ -65,7 +64,7 @@ public class TPCW_Util {
     public static final String SESSION_ID="@sessionIdString@";
 
     //This must be equal to the number of items in the ITEM table
-    public static final int NUM_ITEMS = 16;
+    public static final int NUM_ITEMS = @num.item@;
 
     public static int getRandomI_ID(){
 	Random rand = new Random();
@@ -77,7 +76,7 @@ public class TPCW_Util {
 	return ((int) (java.lang.Math.random() * i)+1);
     }
 
-    //Not very random function. If called in swift succession, it will
+    //Not very random function. If called in swift sucession, it will
     //return the same string because the system time used to seed the
     //random number generator won't change. 
     public static String getRandomString(int min, int max){

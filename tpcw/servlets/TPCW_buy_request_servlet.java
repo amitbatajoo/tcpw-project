@@ -1,4 +1,3 @@
-package product;
 /* 
  * TPCW_buy_request_servlet.java - Servlet Class implements the buy request
  *                                 web interaction.

@@ -1,4 +1,3 @@
-package product;
 /* 
  * TPCW_buy_confirm_servlet.java - Servlet Class implements the buy
  *                                 confirm web interaction.

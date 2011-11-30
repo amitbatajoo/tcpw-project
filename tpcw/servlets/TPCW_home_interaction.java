@@ -1,4 +1,3 @@
-package product;
 /* 
  * TPCW_home_interaction.java - Servlet Class implements home interaction.
  *

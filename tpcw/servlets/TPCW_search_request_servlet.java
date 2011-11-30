@@ -1,4 +1,3 @@
-package product;
 /* 
  * TPCW_search_request_servlet.java - servlet class implements the 
  *                                    search request web interaction.

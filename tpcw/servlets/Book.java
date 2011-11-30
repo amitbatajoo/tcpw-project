@@ -1,7 +1,7 @@
-package product;
+
 /*
- * Order.java - Order class Stores the important pertinent to a
- *              single order
+ * Book.java - Class used to store all of the data associated with a single
+ *             book. 
  * 
  ************************************************************************
  *
@@ -51,77 +51,82 @@ package product;
  * You are forbidden to forbid anyone else to use, share and improve what
  * you give them.
  *
+ ************************************************************************
+ *
+ * Changed 2003 by Jan Kiefer.
+ *
  ************************************************************************/
 
 import java.util.Date;
-import java.util.Vector;
 import java.sql.*;
 
-//Glorified struct to pass order information from the DB to servlets
-
-public class Order {
-    public Order(ResultSet rs) {
+public class Book {
+    // Construct a book from a ResultSet
+    public Book(ResultSet rs) {
+	// The result set should have all of the fields we expect.
+	// This relies on using field name access.  It might be a bad
+	// way to break this up since it does not allow us to use the
+	// more efficient select by index access method.  This also
+	// might be a problem since there is no type checking on the
+	// result set to make sure it is even a reasonble result set
+	// to give to this function.
+       
 	try {
-	    o_id = rs.getInt("o_id");
-	    c_fname = rs.getString("c_fname");
-	    c_lname = rs.getString("c_lname");
-	    c_passwd = rs.getString("c_passwd");
-	    c_uname = rs.getString("c_uname");
-	    c_phone = rs.getString("c_phone");
-	    c_email = rs.getString("c_email");
-	    o_date = rs.getDate("o_date");
-	    o_subtotal = rs.getDouble("o_sub_total");
-	    o_tax = rs.getDouble("o_tax");
-	    o_total = rs.getDouble("o_total");
-	    o_ship_type = rs.getString("o_ship_type");
-	    o_ship_date = rs.getDate("o_ship_date");
-	    o_status = rs.getString("o_status");
-	    cx_type = rs.getString("cx_type");
-	    
-	    bill_addr_street1 = rs.getString("bill_addr_street1");
-	    bill_addr_street2 = rs.getString("bill_addr_street2");
-	    bill_addr_state = rs.getString("bill_addr_state");
-	    bill_addr_zip = rs.getString("bill_addr_zip");
-	    bill_co_name = rs.getString("bill_co_name");
-	    
-	    ship_addr_street1 = rs.getString("ship_addr_street1");
-	    ship_addr_street2 = rs.getString("ship_addr_street2");
-	    ship_addr_state = rs.getString("ship_addr_state");
-	    ship_addr_zip = rs.getString("ship_addr_zip");
-	    ship_co_name = rs.getString("ship_co_name");
+	    i_id = rs.getInt("i_id");
+	    i_title = rs.getString("i_title");
+	    i_pub_Date = rs.getDate("i_pub_date");
+	    i_publisher = rs.getString("i_publisher");
+	    i_subject = rs.getString("i_subject");
+	    i_desc = rs.getString("i_desc");
+	    i_related1 = rs.getInt("i_related1");
+	    i_related2 = rs.getInt("i_related2");
+	    i_related3 = rs.getInt("i_related3");
+	    i_related4 = rs.getInt("i_related4");
+	    i_related5 = rs.getInt("i_related5");
+	    i_thumbnail = rs.getString("i_thumbnail");
+	    i_image = rs.getString("i_image");
+	    i_srp = rs.getDouble("i_srp");
+	    i_cost = rs.getDouble("i_cost");
+	    i_avail = rs.getDate("i_avail");
+	    i_isbn = rs.getString("i_isbn");
+	    i_page = rs.getInt("i_page");
+	    i_backing = rs.getString("i_backing");
+	    i_dimensions = rs.getString("i_dimensions");
+	    a_id = rs.getInt("a_id");
+	    a_fname = rs.getString("a_fname");
+	    a_lname = rs.getString("a_lname");		
 	} catch (java.lang.Exception ex) {
 	    ex.printStackTrace();
 	}
     }
+    // From Item
+    public int i_id;
+    public String i_title;
+//  public int i_a_id;   // Redundant
+    public Date i_pub_Date;
+    public String i_publisher;
+    public String i_subject;
+    public String i_desc;
+    public int i_related1;
+    public int i_related2;
+    public int i_related3;
+    public int i_related4;
+    public int i_related5;
+    public String i_thumbnail;
+    public String i_image;
+    public double i_srp;
+    public double i_cost;
+    public Date i_avail;
+    public String i_isbn;
+    public int i_page;
+    public String i_backing;
+    public String i_dimensions;
 
-    public int o_id;
-    public String c_fname;
-    public String c_lname;
-    public String c_passwd;
-    public String c_uname;
-    public String c_phone;
-    public String c_email;
-    public Date o_date;
-    public double o_subtotal;
-    public double o_tax;
-    public double o_total;
-    public String o_ship_type;
-    public Date o_ship_date;
-    public String o_status;
-
-    //Billing address
-    public String bill_addr_street1;
-    public String bill_addr_street2;
-    public String bill_addr_state;
-    public String bill_addr_zip;
-    public String bill_co_name;
-    
-    //Shipping address
-    public String ship_addr_street1;
-    public String ship_addr_street2;
-    public String ship_addr_state;
-    public String ship_addr_zip;
-    public String ship_co_name;
-    
-    public String cx_type;
+    // From Author
+    public int a_id;
+    public String a_fname;
+    public String a_lname;
 }
+
+
+

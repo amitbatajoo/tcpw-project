@@ -1,4 +1,3 @@
-package product;
 /* 
  * TPCW_admin_request_servlet - Servlet Class implements the admin
  *                              request web interaction.

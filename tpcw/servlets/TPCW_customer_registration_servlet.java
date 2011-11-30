@@ -1,4 +1,3 @@
-package product;
 /* 
  * TPCW_customer_registration_servlet.java - Servlet class implements the
  *                                           customer registration servlet

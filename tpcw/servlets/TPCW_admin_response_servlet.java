@@ -1,4 +1,3 @@
-package product;
 /* 
  * TPCW_admin_respons_servlet.java - Servlet class implements the admin
  *                                   response web interaction.

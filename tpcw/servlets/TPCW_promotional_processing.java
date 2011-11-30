@@ -1,8 +1,9 @@
-package product;
 /* 
- * TPCW_say_hello.java - Utility function used by home interaction, 
- *                       creates a new session id for new users.
- * 
+ * TPCW_promotional_processing.java - This class is basically just a 
+ *                                    utility function used to spit
+ *                                    out the promotional processing
+ *                                    at the top of many web pages.
+ *
  ************************************************************************
  *
  * This is part of the the Java TPC-W distribution,
@@ -51,53 +52,60 @@ package product;
  * You are forbidden to forbid anyone else to use, share and improve what
  * you give them.
  *
+ ************************************************************************
+ *
+ * Changed 2003 by Jan Kiefer.
+ *
  ************************************************************************/
 
 import java.io.*;
+import java.util.*;
 import javax.servlet.*;
 import javax.servlet.http.*;
 
-public class TPCW_say_hello {
-    
-    public static void print_hello(HttpSession session, HttpServletRequest req,
-				   PrintWriter out){
+public class TPCW_promotional_processing {
 
-	//If we have seen this session id before
-	if (!session.isNew()) {
-	    int C_ID[] = (int [])session.getValue("C_ID");
-	    //check and see if we have a customer name yet
-	    if (C_ID != null) // Say hello.
-		out.println("Hello " + (String)session.getValue("C_FNAME") +
-			    " " + (String)session.getValue("C_LNAME"));
-	    else out.println("Hello unknown user");
-	} 
-	else {//This is a brand new session
-	    
-	    out.println("This is a brand new session!");
-	    // Check to see if a C_ID was given.  If so, get the customer name
-	    // from the database and say hello.
-	    String C_IDstr = req.getParameter("C_ID");
-	    if (C_IDstr != null) {
-		String name[];
-		int C_ID[] = new int[1];
-		C_ID[0] = Integer.parseInt(C_IDstr, 10);
-                out.flush();
-		// Use C_ID to get the user name from the database.
-		name = TPCW_Database.getName(C_ID[0]);
-		// Set the values for this session.
-		if(name==null){
-		   out.println("Hello unknown user!");
-		   return;
-		}
-		session.putValue("C_ID", C_ID);
-		session.putValue("C_FNAME", name[0]);
-		session.putValue("C_LNAME", name[1]);
-		out.println("Hello " + name[0] + " " + name[1] +".");
-		
-	    } 
-	    else out.println("Hello unknown user!");
+    public static void DisplayPromotions(PrintWriter out, 
+					 HttpServletRequest req,
+					 HttpServletResponse res,
+					 int new_sid){
+	int I_ID = TPCW_Util.getRandomI_ID();
+	Vector related_item_ids = new Vector();
+	Vector thumbnails = new Vector();
+	int i;
+	String url;
+
+	TPCW_Database.getRelated(I_ID, related_item_ids, thumbnails);
+
+	String C_ID = req.getParameter("C_ID");
+	String SHOPPING_ID = req.getParameter("SHOPPING_ID");
+
+	//Create table and "Click on our latest books..." row
+	out.print("<TABLE ALIGN=CENTER BORDER=0 WIDTH=660>\n");
+	out.print("<TR ALIGN=CENTER VALIGN=top>\n");
+	out.print("<TD COLSPAN=5><B><FONT COLOR=#ff0000 SIZE=+1>"+
+		  "Click on one of our latest books to find out more!" +
+		  "</FONT></B></TD></TR>\n");
+	out.print("<TR ALIGN=CENTER VALIGN=top>\n");
+	
+	//Create links and references to book images
+	for(i = 0; i < related_item_ids.size(); i++){
+	    url = "./TPCW_product_detail_servlet";
+	    url = url + "?I_ID=" + 
+		String.valueOf(related_item_ids.elementAt(i));
+	    if(SHOPPING_ID != null)
+		url = url + "&SHOPPING_ID=" + SHOPPING_ID;
+	    else if(new_sid != -1)
+		url = url + "&SHOPPING_ID=" + new_sid;
+	    if(C_ID != null)
+		url = url + "&C_ID=" + C_ID;
+	    out.print("<TD><A HREF=\""+ res.encodeUrl(url));
+	    out.print("\"><IMG SRC=\"../tpcw/Images/" +thumbnails.elementAt(i)
+		      + "\" ALT=\"Book " + String.valueOf(i+1) 
+		      + "\" WIDTH=\"100\" HEIGHT=\"150\"></A>\n");
+	    out.print("</TD>");
 	}
+	out.print("</TR></TABLE>\n");
     }
+
 }
-
-

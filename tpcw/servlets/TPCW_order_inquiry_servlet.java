@@ -1,7 +1,6 @@
-package product;
 /* 
- * TPCW_execute_search.java - Servlet Class implements search response
- *                            web interaction 
+ * TPCW_order_inquiry_servlet.java - Servlet Class implements order 
+ *                                   inquiry web interaction.
  *
  ************************************************************************
  *
@@ -58,89 +57,52 @@ package product;
  ************************************************************************/
 
 import java.io.*;
-import java.util.*;
 import javax.servlet.*;
 import javax.servlet.http.*;
 
-public class TPCW_execute_search extends HttpServlet {
+public class TPCW_order_inquiry_servlet extends HttpServlet {
     
   public void doGet(HttpServletRequest req, HttpServletResponse res)
       throws IOException, ServletException {
-      
-      int i;
-      
       HttpSession session = req.getSession(false);
 
-      String search_type  = req.getParameter("search_type");
-      String search_string = req.getParameter("search_string");
-
-      String C_ID = req.getParameter("C_ID");
-      String SHOPPING_ID = req.getParameter("SHOPPING_ID");
-      String url;
       PrintWriter out = res.getWriter();
-      res.setContentType("text/plain");
-
-    
-    // Set the content type of this servlet's result.
+      // Set the content type of this servlet's result.
       res.setContentType("text/html");
-      out.print("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD W3 HTML//EN\">\n"); 
-      out.print("<HTML><HEAD><TITLE> Search Results Page: " 
-		+ search_string + "</TITLE></HEAD>\n"); 
-      out.print("<BODY BGCOLOR=\"#ffffff\">\n"); 
-      out.print("<H1 ALIGN=\"center\">TPC Web Commerce"+ 
-		" Benchmark (TPC-W)</H1>\n"); 
-      out.print("<P ALIGN=\"center\">\n");
-      out.print("<IMG SRC=\"../tpcw/Images/tpclogo.gif\" ALIGN=\"BOTTOM\"" +
-		" BORDER=\"0\" WIDTH=\"288\" HEIGHT=\"67\"> </P> <P></P>\n") ;
-	  
-      out.print("<H2 ALIGN=\"center\">Search Result Page - " 
-		+ search_type +": " + search_string + "</H2>\n"); 
-	  
-      //Display promotions
-      TPCW_promotional_processing.DisplayPromotions(out, req, res,-1);
+      String username = "";
+      String url;
+      String C_ID = req.getParameter("C_ID");
+      String SHOPPING_ID=req.getParameter("SHOPPING_ID");
 
-      Vector books = null; //placate javac
-      //Display new products
-      if(search_type.equals("author"))
-	  books = TPCW_Database.doAuthorSearch(search_string);
-      else if(search_type.equals("title"))
-	  books = TPCW_Database.doTitleSearch(search_string);
-      else if(search_type.equals("subject"))
-	  books = TPCW_Database.doSubjectSearch(search_string);
-
-      out.print("<TABLE BORDER=\"1\" CELLPADDING=\"1\" CELLSPACING=\"1\">\n");
-      out.print("<TR> <TD WIDTH=\"30\"></TD>\n");
-      out.print("<TD><FONT SIZE=\"+1\">Author</FONT></TD>\n"); 
-      out.print("<TD><FONT SIZE=\"+1\">Title</FONT></TD></TR>\n");
       
-      //Print out a line for each item returned by the DB
-      for(i = 0; i < books.size(); i++){
-	  Book myBook = (Book) books.elementAt(i);
-	  out.print("<TR><TD>" + (i + 1)+"</TD>\n");
-	  out.print("<TD><I>"+ myBook.a_fname + " " + 
-		    myBook.a_lname +"</I></TD>");
-	  url = "./TPCW_product_detail_servlet?I_ID=" + 
-	      String.valueOf(myBook.i_id);
-	  if(SHOPPING_ID != null)
-	      url = url + "&SHOPPING_ID=" + SHOPPING_ID;
-	  if(C_ID != null)
-	      url = url + "&C_ID=" + C_ID;
-	  out.print("<TD><A HREF=\"" + res.encodeUrl(url));
-	  out.print("\">" + myBook.i_title + "</A></TD></TR>\n");
-      }
+      out.print("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD W3 HTML//EN\">\n");
+      out.print("<HTML><HEAD><TITLE>TPC-W Order Inquiry Page</TITLE>\n");
+      out.print("</HEAD><BODY BGCOLOR=\"#ffffff\">\n"); 
+      out.print("<H1 ALIGN=\"center\">TPC Web Commerce Benchmark (TPC-W)</H1>\n"); 
+      out.print("<H2 ALIGN=\"center\">Order Inquiry Page</H2>\n"); 
 
-      out.print("</TABLE><P><CENTER>\n");
+      out.print("<FORM ACTION=\"TPCW_order_display_servlet;@sessionIdString@"+
+		req.getRequestedSessionId()+"\" METHOD=\"get\">\n");
+      out.print("<TABLE ALIGN=\"CENTER\">\n"); 
+      out.print("<TR> <TD> <H4>Username:</H4></TD>\n"); 
+      out.print("<TD><INPUT NAME=\"UNAME\" VALUE=\"" + username +
+		"\" SIZE=\"23\"></TD></TR>\n"); 
+      out.print("<TR><TD> <H4>Password:</H4></TD>\n"); 
+      out.print("<TD> <INPUT NAME=\"PASSWD\" SIZE=\"14\" " +
+		"TYPE=\"password\"></TD>\n");
+      out.print("</TR></TABLE> <P ALIGN=\"CENTER\"><CENTER>\n");
 
-      url = "TPCW_shopping_cart_interaction?ADD_FLAG=N";
+      out.print("<INPUT TYPE=\"IMAGE\" NAME=\"Display Last Order\" "
+		+ "SRC=\"../tpcw/Images/display_last_order_B.gif\">\n");
+      //      out.print("<INPUT TYPE=HIDDEN NAME=\"" + TPCW_Util.SESSION_ID + 
+      //	"\" value = \"" +
+      //	req.getRequestedSessionId() + "\">\n");
       if(SHOPPING_ID != null)
-	  url = url + "&SHOPPING_ID=" + SHOPPING_ID;
-      if(C_ID != null)
-	  url = url + "&C_ID=" + C_ID;
-
-      out.print("<A HREF=\""+ res.encodeUrl(url));
-      out.print("\"><IMG SRC=\"../tpcw/Images/shopping_cart_B.gif\" " +
-		"ALT=\"Shopping Cart\"></A>\n");
-
+	  out.print("<INPUT TYPE=HIDDEN NAME=\"SHOPPING_ID\" value = \"" + 
+		    SHOPPING_ID + "\">\n");
+      if(C_ID!=null)
+	  out.print("<INPUT TYPE=HIDDEN NAME=\"C_ID\" value = \"" + 
+		    C_ID + "\">\n");
       url = "TPCW_search_request_servlet";
       if(SHOPPING_ID != null){
 	  url = url+"?SHOPPING_ID="+SHOPPING_ID;
@@ -161,12 +123,12 @@ public class TPCW_execute_search extends HttpServlet {
 	      url = url + "&C_ID=" + C_ID;
       }
       else if(C_ID!=null)
-	  url = url + "?C_ID=" + C_ID;
+	  url = url + "?C_ID=" + C_ID; 
       
       out.print("<A HREF=\"" + res.encodeUrl(url));
       out.print("\"><IMG SRC=\"../tpcw/Images/home_B.gif\" " 
 		+ "ALT=\"Home\"></A></P></CENTER>\n");
-      out.print("</BODY> </HTML>\n");
+      out.print("</CENTER></FORM></BODY></HTML>");		
       out.close();
       return;
     }

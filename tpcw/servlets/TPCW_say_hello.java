@@ -1,8 +1,6 @@
-package product;
-/*
- * OrderLine.java - Class contains the perninent information for a single
- *                  item in a single order. Corresponds to a row from the
- *                  ORDER_LINE DB table.
+/* 
+ * TPCW_say_hello.java - Utility function used by home interaction, 
+ *                       creates a new session id for new users.
  * 
  ************************************************************************
  *
@@ -54,28 +52,51 @@ package product;
  *
  ************************************************************************/
 
-import java.sql.*;
+import java.io.*;
+import javax.servlet.*;
+import javax.servlet.http.*;
 
-public class OrderLine {
-    public OrderLine(ResultSet rs) {
-	try {
-	    ol_i_id = rs.getInt("ol_i_id");
-	    i_title = rs.getString("i_title");
-	    i_publisher = rs.getString("i_publisher");
-	    i_cost = rs.getDouble("i_cost");
-	    ol_qty = rs.getInt("ol_qty");
-	    ol_discount = rs.getDouble("ol_discount");
-	    ol_comments = rs.getString("ol_comments");
-	} catch (java.lang.Exception ex) {
-	    ex.printStackTrace();
+public class TPCW_say_hello {
+    
+    public static void print_hello(HttpSession session, HttpServletRequest req,
+				   PrintWriter out){
+
+	//If we have seen this session id before
+	if (!session.isNew()) {
+	    int C_ID[] = (int [])session.getValue("C_ID");
+	    //check and see if we have a customer name yet
+	    if (C_ID != null) // Say hello.
+		out.println("Hello " + (String)session.getValue("C_FNAME") +
+			    " " + (String)session.getValue("C_LNAME"));
+	    else out.println("Hello unknown user");
+	} 
+	else {//This is a brand new session
+	    
+	    out.println("Thisis a brand new session!");
+	    // Check to see if a C_ID was given.  If so, get the customer name
+	    // from the database and say hello.
+	    String C_IDstr = req.getParameter("C_ID");
+	    if (C_IDstr != null) {
+		String name[];
+		int C_ID[] = new int[1];
+		C_ID[0] = Integer.parseInt(C_IDstr, 10);
+                out.flush();
+		// Use C_ID to get the user name from the database.
+		name = TPCW_Database.getName(C_ID[0]);
+		// Set the values for this session.
+		if(name==null){
+		   out.println("Hello unknown user!");
+		   return;
+		}
+		session.putValue("C_ID", C_ID);
+		session.putValue("C_FNAME", name[0]);
+		session.putValue("C_LNAME", name[1]);
+		out.println("Hello " + name[0] + " " + name[1] +".");
+		
+	    } 
+	    else out.println("Hello unknown user!");
 	}
     }
-
-    public int ol_i_id;
-    public String i_title;
-    public String i_publisher;
-    public double i_cost;
-    public int ol_qty;
-    public double ol_discount;
-    public String ol_comments;
 }
+
+

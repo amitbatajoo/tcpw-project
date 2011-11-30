@@ -1,4 +1,3 @@
-package product;
 /* 
  * TPCW_order_display_servlet.java - Servlet Class implements order
  *                                   display servlet.
