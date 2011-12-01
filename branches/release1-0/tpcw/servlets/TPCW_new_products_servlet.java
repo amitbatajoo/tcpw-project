@@ -91,10 +91,6 @@ public class TPCW_new_products_servlet extends HttpServlet {
       TPCW_promotional_processing.DisplayPromotions(out, req, res,-1);
 
       //Display new products
-      Vector books2 = TPCW_Database.getNewProducts(subject);      
-      out.print("<H1>Hello</H1>");
-      out.print("<H2>" + books2.size() + "</H2>");
-      
       out.print("<TABLE BORDER=\"1\" CELLPADDING=\"1\" CELLSPACING=\"1\">\n");
       out.print("<TR> <TD WIDTH=\"30\"></TD>\n");
       out.print("<TD><FONT SIZE=\"+1\">Author</FONT></TD>\n"); 
