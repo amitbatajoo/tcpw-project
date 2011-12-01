@@ -91,7 +91,8 @@ public class TPCW_new_products_servlet extends HttpServlet {
       TPCW_promotional_processing.DisplayPromotions(out, req, res,-1);
 
       //Display new products
-      
+	Vector books2 = TPCW_Database.getNewProducts(subject);      
+
       out.print("<TABLE BORDER=\"1\" CELLPADDING=\"1\" CELLSPACING=\"1\">\n");
       out.print("<TR> <TD WIDTH=\"30\"></TD>\n");
       out.print("<TD><FONT SIZE=\"+1\">Author</FONT></TD>\n"); 
@@ -101,7 +102,7 @@ public class TPCW_new_products_servlet extends HttpServlet {
       //and then spit them out in html to complete the table
       
       Vector books = TPCW_Database.getNewProducts(subject);
-	out.print("<TR><TD>" + books.size() + "</TD></TR>");
+      out.print("<TR><TD>" + books.size() + "</TD></TR>");
       for(i = 0; i < books.size(); i++){
 	  ShortBook book = (ShortBook) books.elementAt(i);
 	  out.print("<TR><TD>" + (i+1) + "</TD>\n");
