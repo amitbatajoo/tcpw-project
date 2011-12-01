@@ -109,6 +109,7 @@
       				<pathelement path="${classpath}"/>
       				<pathelement path="${srcServDir}"/>
       				<pathelement location="${cpServ}"/>
+				<pathelement location="/usr/share/java/mysql-connector-java-3.0.10-stable-bin.jar"/>
     			</classpath>
     		</javac>
     		<!--<javac srcdir="${srcDir}" includeantruntime="false" destdir="${buildRbeDir}" includes="rbe/**">
@@ -123,6 +124,7 @@
       				<pathelement path="${classpath}"/>
       				<pathelement path="${srcDbDir}"/>
       				<pathelement location="${cpServ}"/>
+				<pathelement location="/usr/share/java/mysql-connector-java-3.0.10-stable-bin.jar"/>
     			</classpath>
     		</javac>
   	</target>
