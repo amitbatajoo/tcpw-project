@@ -84,7 +84,7 @@ public class TPCW_new_products_servlet extends HttpServlet {
       out.print("<IMG SRC=\"../tpcw/Images/tpclogo.gif\" ALIGN=\"BOTTOM\"" +
 		" BORDER=\"0\" WIDTH=\"288\" HEIGHT=\"67\"> </P> <P></P>\n") ;
 	  
-      out.print("<H2 ALIGN=\"center\">New Products Page - Subject: " +
+      out.print("<H2 ALIGN=\"center\">New Products Page - Subject(Please work): " +
 		subject + "</H2>\n"); 
 	  
       //Display promotions
