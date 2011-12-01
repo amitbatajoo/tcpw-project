@@ -101,6 +101,7 @@ public class TPCW_new_products_servlet extends HttpServlet {
       //and then spit them out in html to complete the table
       
       Vector books = TPCW_Database.getNewProducts(subject);
+	out.print("<TR><TD>" + books.size() + "</TD></TR>");
       for(i = 0; i < books.size(); i++){
 	  ShortBook book = (ShortBook) books.elementAt(i);
 	  out.print("<TR><TD>" + (i+1) + "</TD>\n");
