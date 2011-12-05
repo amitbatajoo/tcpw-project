@@ -114,7 +114,7 @@ public class ImageReader {
 	  }
 	  int dNum = num % 100;
 	  num = num - dNum;
-	  if(imgURLStr.indexOf("/img") > 0)
+	  if(imgURLStr.indexOf("/Images") > 0)
 	  {
 	  imgURLStr = imgURLStr.substring(0, imgURLStr.indexOf("/Images")) + 
 	    "/Images/img" + dNum + "/" + iType + (num+dNum) + ".gif";
