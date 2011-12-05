@@ -86,7 +86,7 @@ public class ImageReader {
   public boolean readImage() throws InterruptedException
   {
     return true;
-    /*
+    
     int r;
 
     // Open the image URL if necessary.
@@ -105,11 +105,24 @@ public class ImageReader {
 
 	if (idx!=-1) {
 	  idxDot = imgURLStr.lastIndexOf('.');
-	  num = Integer.parseInt(imgURLStr.substring(idx+6, idxDot));
+	  if(idxDot >= idx+7 && idxDot < imgURLStr.length())
+	  {
+	  	num = Integer.parseInt(imgURLStr.substring(idx+6, idxDot));
+	  }
+	  else{
+	 	System.out.println("Error getting num");
+		num = 0;
+	  }
 	  int dNum = num % 100;
 	  num = num - dNum;
+	  if(imgURLStr.indexOf("/img") > 0)
+	  {
 	  imgURLStr = imgURLStr.substring(0, imgURLStr.indexOf("/img")) + 
 	    "/img" + dNum + "/" + iType + (num+dNum) + ".gif";
+	  }
+	  else{
+		System.out.println("Cannot find /img in:\n\t" + imgURLStr);
+	  }
 	  if (false) {
 	      System.out.println("New imgURLStr " + imgURLStr);
 	  }
