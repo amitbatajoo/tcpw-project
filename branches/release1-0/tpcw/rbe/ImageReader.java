@@ -85,7 +85,6 @@ public class ImageReader {
   // Returns false if the image has been read.
   public boolean readImage() throws InterruptedException
   {
-    return true;
     
     int r;
 
