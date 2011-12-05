@@ -182,7 +182,7 @@ public class ImageReader {
       tot+=r;
     }
 
-    return(true);*/
+    return(true);
   }
 
   private void close()
