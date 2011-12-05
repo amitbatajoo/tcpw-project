@@ -99,10 +99,16 @@ public class TPCW_buy_request_servlet extends HttpServlet {
 	  }
 
 	  cust = TPCW_Database.getCustomer(UNAME);
-	  TPCW_Database.refreshSession(cust.c_id);
-	  if(!PASSWD.equals(cust.c_passwd)){
-	      out.print("Error: Incorrect Password</BODY></HTML>");
-	      return;
+	  if(cust != null){
+	  	TPCW_Database.refreshSession(cust.c_id);
+	  	if(!PASSWD.equals(cust.c_passwd)){
+	  	    out.print("Error: Incorrect Username or Password</BODY></HTML>");
+	  	    return;
+	  	}
+	  }
+	  else{
+		out.print("Error: Incorrect Username or Password</BODY></HTML>");
+		return;
 	  }
       }
       else if(RETURNING_FLAG.equals("N")){
