@@ -122,7 +122,7 @@ public class ImageReader {
 	  else{
 		System.out.println("Cannot find /img in:\n\t" + imgURLStr);
 		System.out.println("imgURLStr.substring(0,imgURLStr.indexOf(\"/Images/\")) + \"/img\"" +
-			imgURLStr.substring(0,imgURLStr.indexOf("/Images")));
+			imgURLStr.substring(0,imgURLStr.indexOf("/Images")) + "/Images/img" + dNum + "/" + iType + (num+dNum) + ".gif" );
 	  }
 	  if (false) {
 	      System.out.println("New imgURLStr " + imgURLStr);
