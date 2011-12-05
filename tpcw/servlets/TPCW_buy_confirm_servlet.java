@@ -110,7 +110,7 @@ public class TPCW_buy_confirm_servlet extends HttpServlet {
       long CC_NUMBER = Long.parseLong(CC_NUMBERstr);
       String CC_NAME = req.getParameter("CC_NAME");
       String CC_EXPIRYstr = req.getParameter("CC_EXPIRY");
-      java.util.Date CC_EXPIRY = new java.util.Date(CC_EXPIRYstr);
+      java.util.Date CC_EXPIRY = new java.util.Date();
       String SHIPPING = req.getParameter("SHIPPING");
 
       String STREET_1 = req.getParameter("STREET_1");
