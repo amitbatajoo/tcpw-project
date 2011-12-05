@@ -86,6 +86,7 @@ public class ImageReader {
   public boolean readImage() throws InterruptedException
   {
     return true;
+    /*
     int r;
 
     // Open the image URL if necessary.
@@ -168,7 +169,7 @@ public class ImageReader {
       tot+=r;
     }
 
-    return(true);
+    return(true);*/
   }
 
   private void close()
