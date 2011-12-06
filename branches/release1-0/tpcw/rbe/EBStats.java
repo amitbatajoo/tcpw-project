@@ -251,7 +251,7 @@ public class EBStats {
     */
 	for(int i = 0; i < num_interactions; i++)
 	{
-		out.println(i + "," + end_times[i] - (start_times[i] - start_times[0]));
+		out.println(i + "," + (end_times[i] - (start_times[i] - start_times[0])));
 	}
   }
 
