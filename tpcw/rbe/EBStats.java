@@ -188,7 +188,7 @@ public class EBStats {
 
 
   public void print(PrintStream out) {
-	 int h;
+	 /*int h;
 
 	 out.println("function [dat] = tpcw()");
 
@@ -248,6 +248,11 @@ public class EBStats {
       out.println("%" + errors.elementAt(i));
     }
     out.println("% Total Errors: " + errors.size());
+    */
+	for(int i = 0; i < num_interactions; i++)
+	{
+		out.println(i + "," + end_times[i] - (start_times[i] - start_times[0]));
+	}
   }
 
   public void waitForRampDown()
