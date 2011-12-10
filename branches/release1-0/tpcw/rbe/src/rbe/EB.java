@@ -80,7 +80,7 @@ public class EB extends Thread {
   EBTransition curTrans;
   int curState;                                   // Current state.
   String nextReq;            // Next HTTP request.
-  String html;               // Received HTML
+  public String html;               // Received HTML
   public String prevHTML;    // HTML from a previous page.
   int maxTrans;
   String name;
@@ -320,7 +320,7 @@ public class EB extends Thread {
     }
   }
 
-  void getHTML(URL url) 
+  public void getHTML(URL url) 
   {
 
     // System.out.println("Begin reading HTML. " + name);
