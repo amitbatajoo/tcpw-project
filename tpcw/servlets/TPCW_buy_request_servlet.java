@@ -161,6 +161,7 @@ public class TPCW_buy_request_servlet extends HttpServlet {
       if(RETURNING_FLAG.equals("N")){
 	  out.print("<TR><TD>USERNAME:</TD><TD>" + cust.c_uname + "</TD></TR>\n");
 	  out.print("<TR><TD>C_ID:</TD><TD>" + cust.c_id + "</TD></TR>\n");
+	  out.print("<TR><TD>Password:</TD><TD>" + cust.c_passwd + "</TD></TR>\n");
       }
       out.print("</TABLE></TD>");
 
