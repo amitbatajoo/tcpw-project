@@ -55,12 +55,14 @@ public class EBTest {
 					       item, ebs, db);
 		EB eb = factory.getEB(item);
 		try {
-			eb.getHTML(new URL("localhost:8085"));
+			eb.getHTML(new URL("http://localhost:8085"));
 		} catch (MalformedURLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		assertEquals(eb.html,"Test Success");
+
+		boolean value = (eb.html).contains("Test Success");
+		assertEquals(true,value);
 	}
 
 }
