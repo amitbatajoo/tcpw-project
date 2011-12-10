@@ -4,6 +4,7 @@ import static org.junit.Assert.*;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Vector;
 
 import org.eclipse.jetty.server.*;
 
@@ -14,6 +15,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import rbe.*;
+import rbe.args.ArgDB;
 
 public class EBTest {
 	Server server;
@@ -42,8 +44,16 @@ public class EBTest {
 	@Test
 	public void testGetHTML() {
 		RBE item = new RBE();
+		EBTestFactory factory = new EBTestFactory();
 		int[][] transitions = {{1,1,1},{1,1,1}};
-		EB eb = new EB(item, transitions, null, -1, "name");
+		Vector ebs = new Vector(0);
+		ArgDB db = new ArgDB();
+		EBFactoryArg ebfArg =
+			      new EBFactoryArg("-EB", "EB Factory",
+					       "% Factory class used to create EBs.  " + 
+					       "<class> <#> <factory args...>.", 
+					       item, ebs, db);
+		EB eb = factory.getEB(item);
 		try {
 			eb.getHTML(new URL("localhost:8085"));
 		} catch (MalformedURLException e) {
